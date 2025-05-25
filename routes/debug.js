@@ -2,7 +2,7 @@ const express = require('express');
 const Contact = require('../models/contact'); // Adjust the path as necessary
 const router = express.Router();
 
-// 🔍 Get all contacts
+// Get all contacts using get api
 router.get('/contacts', async (req, res) => {
   try {
     const contacts = await Contact.findAll({
@@ -15,7 +15,7 @@ router.get('/contacts', async (req, res) => {
   }
 });
 
-// ❌ Delete a contact by ID (soft delete)
+// Delete a contact by ID (soft delete) using delete api
 router.delete('/contacts/:id', async (req, res) => {
   const id = req.params.id;
   try {
@@ -32,7 +32,7 @@ router.delete('/contacts/:id', async (req, res) => {
   }
 });
 
-// ❌ Delete all contacts and reset IDs
+// Delete all contacts and reset IDs
 router.delete('/contacts', async (req, res) => {
   try {
     await Contact.destroy({ where: {}, truncate: true });  // <-- truncate resets IDs
@@ -43,7 +43,7 @@ router.delete('/contacts', async (req, res) => {
   }
 });
 
-// ❌ Delete contacts by email (soft delete)
+// Delete contacts by email (soft delete)
 router.delete('/contacts/email/:email', async (req, res) => {
   const email = req.params.email;
   try {
