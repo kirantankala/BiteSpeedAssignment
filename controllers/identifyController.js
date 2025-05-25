@@ -1,4 +1,4 @@
-const Contact = require('../models/Contact');
+const Contact = require('../models/contact');
 const { Op } = require('sequelize');
 
 exports.identifyContact = async (req, res) => {
