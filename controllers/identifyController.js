@@ -4,12 +4,12 @@ const { Op } = require('sequelize');
 exports.identifyContact = async (req, res) => {
   const { email, phoneNumber } = req.body;
 
-  // 1️⃣ Validate input
+  // Validate input and check for user validation
   if (!email && !phoneNumber) {
     return res.status(400).json({ error: 'Email or phoneNumber is required' });
   }
 
-  // 2️⃣ Dynamically build query condition
+  // Dynamically build query condition
   const condition = [];
   if (email) condition.push({ email });
   if (phoneNumber) condition.push({ phoneNumber });
@@ -20,7 +20,7 @@ exports.identifyContact = async (req, res) => {
     }
   });
 
-  // 3️⃣ No match found — create new primary
+  // Not an existing user - No match found - create new primary user
   if (contacts.length === 0) {
     const newContact = await Contact.create({
       email,
@@ -38,7 +38,7 @@ exports.identifyContact = async (req, res) => {
     });
   }
 
-  // 4️⃣ Find the primary contact (or fetch it if all are secondaries)
+  //  Find the primary contact (or fetch it if all are secondaries)
   let primary = contacts.find(c => c.linkPrecedence === 'primary');
 
   if (!primary) {
@@ -46,7 +46,7 @@ exports.identifyContact = async (req, res) => {
     primary = await Contact.findByPk(contacts[0].linkedId);
   }
 
-  // 5️⃣ Find all linked contacts to this primary
+  // Find all linked contacts to this primary user
   const linkedContacts = await Contact.findAll({
     where: {
       [Op.or]: [
@@ -56,7 +56,7 @@ exports.identifyContact = async (req, res) => {
     }
   });
 
-  // 6️⃣ If this combination is new, create secondary
+  // If this combination is new, create secondary user
   const alreadyExists = linkedContacts.find(c =>
     c.email === email && c.phoneNumber === phoneNumber
   );
@@ -70,7 +70,7 @@ exports.identifyContact = async (req, res) => {
     });
   }
 
-  // 7️⃣ Refresh and format final cluster
+  // Refresh and format final cluster
   const finalContacts = await Contact.findAll({
     where: {
       [Op.or]: [
@@ -86,7 +86,7 @@ exports.identifyContact = async (req, res) => {
     .filter(c => c.linkPrecedence === 'secondary')
     .map(c => c.id);
 
-  // 8️⃣ Return response
+  //  Return response in the thunderclient 
   res.json({
     contact: {
       primaryContatctId: primary.id,
